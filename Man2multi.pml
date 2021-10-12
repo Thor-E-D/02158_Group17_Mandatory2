@@ -88,25 +88,15 @@ crit:
 	
 	if
 	:: _pid < 5 ->
-			int tempUpcrit;
-			tempUpcrit = upcrit;
-			tempUpcrit++;
-			upcrit = tempUpcrit;
+			upcrit++;
 	:: _pid > 4 ->
-			int tempDowncrit;
-			tempDowncrit = downcrit;
-			tempDowncrit++;
-			downcrit = tempDowncrit;
+			downcrit++;
 	fi;
 	if
 	:: _pid < 5 ->
-			tempUpcrit = upcrit;
-			tempUpcrit--;
-			upcrit = tempUpcrit;
+			upcrit--;
 	:: _pid > 4 ->
-			tempDowncrit = downcrit;
-			tempDowncrit--;
-			downcrit = tempDowncrit;
+			downcrit--;
 	fi;
 
 exit:
