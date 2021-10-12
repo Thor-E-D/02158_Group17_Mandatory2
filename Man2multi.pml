@@ -25,9 +25,9 @@ inline ENTER(number){
 	if
 	:: number < 5 -> P(SD); 
 							if
-							:: !(down == 0) -> skip;
 							:: down == 0 -> 
 								P(SU);
+							:: else -> skip
 							fi;
 							int tempDown;
 							tempDown = down;
@@ -37,9 +37,9 @@ inline ENTER(number){
 							V(SD);
 	:: !(number<5) -> P(SU); 
 							if
-							:: !(up == 0) -> skip;
 						 	:: up == 0 -> 
-									P(SD); 
+									P(SD);
+							:: else -> skip
 						  	fi;
 
 							int tempUp;
@@ -63,6 +63,7 @@ inline LEAVE(number){
 		if
 		:: down == 0 -> 
 			V(SU);
+		:: else -> skip
 		fi;	
 	:: !(number<5) -> 
 		int tempUp;
@@ -73,6 +74,7 @@ inline LEAVE(number){
 		if 
 		:: up == 0 -> 
 			V(SD);
+		:: else -> skip
 		fi;
 	fi
 }
@@ -86,27 +88,13 @@ entry:
 
 crit:
 	
-	if
-	:: _pid < 5 ->
-			int tempUpcrit;
-			tempUpcrit = upcrit;
-			tempUpcrit++;
-			upcrit = tempUpcrit;
-	:: _pid > 4 ->
-			int tempDowncrit;
-			tempDowncrit = downcrit;
-			tempDowncrit++;
-			downcrit = tempDowncrit;
+	if 
+	:: _pid < 5 -> upcrit++; 
+	:: _pid > 4 -> downcrit++; 
 	fi;
-	if
-	:: _pid < 5 ->
-			tempUpcrit = upcrit;
-			tempUpcrit--;
-			upcrit = tempUpcrit;
-	:: _pid > 4 ->
-			tempDowncrit = downcrit;
-			tempDowncrit--;
-			downcrit = tempDowncrit;
+	if 
+	:: _pid < 5 -> upcrit--; 
+	:: _pid > 4 -> downcrit--; 
 	fi;
 
 exit:
