@@ -1,6 +1,6 @@
 
 
-#define N 5
+#define N 9
 int upcrit = 0; /* For easy statement of mutual exlusion */
 int downcrit = 0;
 int down =0;
@@ -8,6 +8,7 @@ int up = 0
 
 bool SU = true;
 bool SD = true;
+
 
 inline P(sem){
 	atomic
@@ -20,34 +21,55 @@ inline V(sem){
 	sem = true
 }
 
-inline ENTER(hej){
+inline ENTER(number){
 	if
-	:: hej < 5 -> P(SD); if
-						:: down == 0 -> 
+	:: number < 5 -> P(SD); 
+							if
+							:: !(down == 0) -> skip;
+							:: down == 0 -> 
 								P(SU);
-						fi;
-							down++; 
+							fi;
+							int tempDown;
+							tempDown = down;
+							tempDown++;
+							down = tempDown;
+
 							V(SD);
-	:: !(hej<5) -> P(SU); if 
-						 :: up == 0 -> 
+	:: !(number<5) -> P(SU); 
+							if
+							:: !(up == 0) -> skip;
+						 	:: up == 0 -> 
 									P(SD); 
-						  fi;
-							up++; 
+						  	fi;
+
+							int tempUp;
+							tempUp = up;
+							tempUp++;
+							up = tempUp;
+
 							V(SU);
 	fi
 }
 
-inline LEAVE(hej){
+inline LEAVE(number){
 
 	if
-	:: hej < 5 -> 
-		down--; 
+	:: number < 5 -> 
+		int tempDown;
+		tempDown = down;
+		tempDown--;
+		down = tempDown;
+
 		if
 		:: down == 0 -> 
 			V(SU);
 		fi;	
-	:: !(hej<5) -> 
-		up--; 
+	:: !(number<5) -> 
+		int tempUp;
+		tempUp = up;
+		tempUp--;
+		up = tempUp;
+
 		if 
 		:: up == 0 -> 
 			V(SD);
@@ -57,22 +79,45 @@ inline LEAVE(hej){
 
 active [N] proctype Cars()
 {
+	do
+	:: true ->
 entry:
 	ENTER(_pid);
 
 crit:
+	
 	if
-	:: _pid < 5 -> upcrit++;
-	:: _pid > 4 -> downcrit++;
-	fi;
-	assert(!(upcrit > 0 && downcrit > 0));
+	:: _pid < 5 ->
+			int tempUpcrit;
+			tempUpcrit = upcrit;
+			tempUpcrit++;
+			upcrit = tempUpcrit;
+	:: _pid > 4 ->
+			int tempDowncrit;
+			tempDowncrit = downcrit;
+			tempDowncrit++;
+			downcrit = tempDowncrit;
+	fi;
 	if
-	:: _pid < 5 -> upcrit--;
-	:: _pid > 4 -> downcrit--;
-	fi;
+	:: _pid < 5 ->
+			tempUpcrit = upcrit;
+			tempUpcrit--;
+			upcrit = tempUpcrit;
+	:: _pid > 4 ->
+			tempDowncrit = downcrit;
+			tempDowncrit--;
+			downcrit = tempDowncrit;
+	fi;
 
 exit:
 	LEAVE(_pid);
+	od
 
+}
+
+active proctype assertionThing()
+{
+	atomic{(upcrit > 0 && downcrit > 0)} ->
+	assert(false);
 }
 
