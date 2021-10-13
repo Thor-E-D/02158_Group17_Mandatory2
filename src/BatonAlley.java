@@ -59,7 +59,7 @@ public class BatonAlley extends Alley {
             try {
                 entry.P(); 
             } catch (InterruptedException e) {
-                System.out.println("shit went wrong, yo!");
+                System.out.println("A thread was interrupted while leaving"); //These where necessary, as java wouldn't allow us to throw interupted exceptions from multiple functions.
                 e.printStackTrace();
             }
             down--;
@@ -75,7 +75,7 @@ public class BatonAlley extends Alley {
             try {
                 entry.P();
             } catch (InterruptedException e) {
-                System.out.println("shit went wrong, yo!");
+                System.out.println("A thread was interrupted while leaving"); //These where necessary, as java wouldn't allow us to throw interupted exceptions from multiple functions.
                 e.printStackTrace();
             }
             up--;
