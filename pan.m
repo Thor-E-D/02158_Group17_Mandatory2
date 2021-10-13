@@ -31,10 +31,10 @@
 		_m = 3; goto P999; /* 0 */
 
 		 /* PROC nSafety */
-	case 5: /* STATE 1 - Man2baton.pml:154 - [((!((nup<=4))&&!((ndown<=4))))] (4:0:0 - 1) */
+	case 5: /* STATE 1 - Man2baton.pml:154 - [(!(((nup+ndown)<=4)))] (4:0:0 - 1) */
 		IfNotBlocked
 		reached[2][1] = 1;
-		if (!(( !((now.nup<=4))&& !((now.ndown<=4)))))
+		if (!( !(((now.nup+now.ndown)<=4))))
 			continue;
 		/* merge: assert(0)(0, 3, 4) */
 		reached[2][3] = 1;

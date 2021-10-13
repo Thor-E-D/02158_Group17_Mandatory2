@@ -151,7 +151,7 @@ active proctype allySafety()
 
 active proctype nSafety()
 {
-	atomic{!(nup <= N) && !(ndown <= N)} ->
+	atomic{!(nup + ndown <= N)} ->
 	assert(false);
 }
 

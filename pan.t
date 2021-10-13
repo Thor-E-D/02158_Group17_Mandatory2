@@ -41,7 +41,7 @@ settable(void)
 
 	T = trans[ 2][2] = settr(132,2,0,0,0,"ATOMIC", 1, 2, 0);
 	T->nxt	= settr(132,2,1,0,0,"ATOMIC", 1, 2, 0);
-	trans[2][1]	= settr(131,0,4,5,5,"((!((nup<=4))&&!((ndown<=4))))", 1, 2, 0); /* m: 3 -> 4,0 */
+	trans[2][1]	= settr(131,0,4,5,5,"(!(((nup+ndown)<=4)))", 1, 2, 0); /* m: 3 -> 4,0 */
 	reached2[3] = 1;
 	trans[2][3]	= settr(0,0,0,0,0,"assert(0)",0,0,0);
 	trans[2][4]	= settr(134,0,0,6,6,"-end-", 0, 3500, 0);
