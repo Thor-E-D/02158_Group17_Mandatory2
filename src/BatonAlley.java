@@ -6,11 +6,12 @@
 
 public class BatonAlley extends Alley {
 
-    int up, down;
+    int up, down, dup, ddown;
     Semaphore upSem, downSem, entry;
 
     protected BatonAlley() {
         up = 0; down = 0;
+        dup = 0; ddown = 0;
 
         upSem   = new Semaphore(0);
         downSem = new Semaphore(0);
@@ -22,37 +23,35 @@ public class BatonAlley extends Alley {
         if (no < 5) {
             entry.P();
             if (up > 0 ){
-                down++;
+                ddown++;
                 entry.V();
                 downSem.P();
             }
             down ++;
-            signal();
+            if(ddown > 0){
+                ddown--;
+                downSem.V();
+            } else {
+                entry.V();
+            }
             
         } else {
             entry.P();
             if (down > 0){
-                up++;
+                dup++;
                 entry.V();
                 upSem.P();
             }
             up++;
-            signal();
+            if(dup > 0){
+                dup--;
+                upSem.V();
+            } else {
+                entry.V();
+            }
         }
 
      }
-
-    private void signal() {
-        if(up == 0 && down > 0){
-            down--;
-            downSem.V();
-        } else if (down == 0 && up > 0){
-            up--;
-            upSem.V();
-        } else{
-            entry.V();
-        }
-    }
 
     /* Register that car no. has left the alley */
     public void leave(int no) {
@@ -64,7 +63,14 @@ public class BatonAlley extends Alley {
                 e.printStackTrace();
             }
             down--;
-            signal();
+            if (down == 0 && dup > 0){
+                dup--;
+                upSem.V();
+            } else {
+                entry.V();
+            }
+
+
         } else {
             try {
                 entry.P();
@@ -73,7 +79,12 @@ public class BatonAlley extends Alley {
                 e.printStackTrace();
             }
             up--;
-            signal();
+            if(up == 0 && ddown > 0){
+                ddown--;
+                downSem.V();
+            } else {
+                entry.V();
+            }
         }
     }
 
