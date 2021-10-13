@@ -1,32 +1,30 @@
-
-
 #define N 9
-int upcrit = 0; /* For easy statement of mutual exlusion */
-int downcrit = 0;
-int down =0;
-int up = 0
+int upcrit = 0; /* For easy statement of mutual exlusion */ 
+int downcrit = 0; 
+int down =0; 
+int up = 0 
+ 
+int SU = 1; 
+int SD = 1; 
 
-bool SU = true;
-bool SD = true;
+ 
+inline P(sem){ 
+	atomic 
+	{ 
+		sem > 0 ->  
+		sem--;
+	} 
+} 
+inline V(sem){ 
+	sem++;
+} 
 
-
-inline P(sem){
-	atomic
-	{
-		sem -> 
-		sem = false
-	}
-}
-inline V(sem){
-	sem = true
-}
-
-inline ENTER(number){
-	if
+inline ENTER(number){ 
+	if 
 	:: number < 5 -> P(SD); 
-							if
-							:: down == 0 -> 
-								P(SU);
+							if 
+							:: down == 0 ->  
+								P(SU); 
 							:: else -> skip
 							fi;
 							int tempDown;
@@ -34,10 +32,10 @@ inline ENTER(number){
 							tempDown++;
 							down = tempDown;
 
-							V(SD);
+							V(SD); 
 	:: !(number<5) -> P(SU); 
 							if
-						 	:: up == 0 -> 
+						 	:: up == 0 ->  
 									P(SD);
 							:: else -> skip
 						  	fi;
@@ -48,24 +46,24 @@ inline ENTER(number){
 							up = tempUp;
 
 							V(SU);
-	fi
-}
+	fi 
+} 
 
-inline LEAVE(number){
-
-	if
+inline LEAVE(number){ 
+ 
+	if 
 	:: number < 5 -> 
 		int tempDown;
 		tempDown = down;
 		tempDown--;
 		down = tempDown;
 
-		if
+		if 
 		:: down == 0 -> 
-			V(SU);
+			V(SU); 
 		:: else -> skip
-		fi;	
-	:: !(number<5) -> 
+		fi;	 
+		:: !(number<5) -> 
 		int tempUp;
 		tempUp = up;
 		tempUp--;
@@ -73,14 +71,14 @@ inline LEAVE(number){
 
 		if 
 		:: up == 0 -> 
-			V(SD);
+			V(SD); 
 		:: else -> skip
-		fi;
-	fi
-}
-
-active [N] proctype Cars()
-{
+		fi;
+	fi 
+} 
+ 
+active [N] proctype Cars() 
+{ 
 	do
 	:: true ->
 entry:
@@ -101,11 +99,10 @@ exit:
 	LEAVE(_pid);
 	od
 
-}
+} 
 
 active proctype assertionThing()
 {
 	atomic{(upcrit > 0 && downcrit > 0)} ->
 	assert(false);
 }
-
