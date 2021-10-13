@@ -31,19 +31,6 @@ inline V(sem){
 	sem = true
 }
 
-inline SIGNAL() {
-	if
-	:: (nup == 0 && ddown > 0) ->
-		ddown--;
-		V(Sdown);
-	:: (ndown == 0 && dup >0) ->
-		dup--;
-		V(Sup);
-	:: else ->
-		V(Sentry);
-	fi
-}
-
 
 inline ENTER(number){
 	if
@@ -57,7 +44,12 @@ inline ENTER(number){
 		:: else -> skip
 		fi;
 		ndown++;
-		SIGNAL();
+		if
+		:: ddown > 0 ->
+			ddown--;
+			V(Sdown);
+		:: else -> V(Sentry);
+		fi
 
 	:: !(number<5) ->
 		P(Sentry);
@@ -69,7 +61,12 @@ inline ENTER(number){
 		:: else -> skip
 		fi;
 		nup++;
-		SIGNAL();
+		if
+		:: dup > 0 ->
+			dup--;
+			V(Sup);
+		:: else -> V(Sentry);
+		fi
 	fi
 }
 
@@ -78,11 +75,25 @@ inline LEAVE(number){
 	:: number < 5 ->
 		P(Sentry);
 		ndown--;
-		SIGNAL();
+		if
+		:: (ndown == 0 && dup > 0) ->
+			dup--;
+			V(Sup);
+		:: else ->
+			V(Sentry)
+		fi		
+
+
 	:: !(number<5) ->
 		P(Sentry);
 		nup--;
-		SIGNAL();
+		if
+		:: (nup == 0 && ddown > 0) ->
+			ddown--;
+			V(Sdown);
+		:: else ->
+			V(Sentry)
+		fi		
 	fi
 }
 
@@ -115,4 +126,16 @@ active proctype allySafety()
 	atomic{(upcrit > 0 && downcrit > 0)} ->
 	assert(false);
 }
+
+
+/* 	Checking the split binary semaphore propability
+	the split semaphore must never have more than one true value
+	We check this by cheking that they together never become greater than one*/
+active proctype splitBinaryProp()
+{
+	atomic{(Sentry+Sdown+Sup > 1)} ->
+	assert(false);
+}
+
+
 
