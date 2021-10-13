@@ -1,16 +1,16 @@
 
 
-#define N 9
+#define N 4
 int upcrit = 0; /* For easy statement of mutual exlusion */
 int downcrit = 0;
 
-int ndown =0; /* Number of down cars in the ally */
-int nup = 0; /* Number of up cars in the ally */
-
 /* The three semaphores */
-bool Sentry = true
-bool Sdown = false
-bool Sup = false;
+int Sentry = 1
+int Sdown = 0
+int Sup = 0;
+
+int ndown = 0;	/* Number of down cars in the ally */
+int nup = 0;	/* Number of up cars in the ally */
 
 
 /* Number of delayed cars (cars at ENTER) */
@@ -22,48 +22,61 @@ int dup = 0;
 inline P(sem){
 	atomic
 	{
-		sem -> 
-		sem = false
+		sem > 0 -> 
+		sem--;
 	}
 }
 
 inline V(sem){
-	sem = true
+	sem++;
 }
 
 
 inline ENTER(number){
+	int tmp;
 	if
-	:: number < 5 ->
+	:: number < (N/2) ->
 		P(Sentry);
 		if
 		:: nup > 0 ->
-			ddown++;
+			tmp = ddown;
+			tmp++;
+			ddown = tmp;
 			V(Sentry);
 			P(Sdown)
 		:: else -> skip
 		fi;
-		ndown++;
+		tmp = ndown;
+		tmp++;
+		ndown = tmp;
 		if
 		:: ddown > 0 ->
-			ddown--;
+			tmp = ddown;
+			tmp--;
+			ddown = tmp;
 			V(Sdown);
 		:: else -> V(Sentry);
 		fi
 
-	:: !(number<5) ->
+	:: !(number < (N/2)) ->
 		P(Sentry);
 		if
 		:: ndown > 0 ->
-			dup++;
+			tmp = dup;
+			tmp++;
+			dup = tmp;
 			V(Sentry);
 			P(Sup)
 		:: else -> skip
 		fi;
-		nup++;
+		tmp = nup;
+		tmp++;
+		nup = tmp;
 		if
 		:: dup > 0 ->
-			dup--;
+			tmp = dup;
+			tmp--;
+			dup = tmp;
 			V(Sup);
 		:: else -> V(Sentry);
 		fi
@@ -71,25 +84,34 @@ inline ENTER(number){
 }
 
 inline LEAVE(number){
+	int tmp;
 	if
-	:: number < 5 ->
+	:: number < (N/2) ->
 		P(Sentry);
-		ndown--;
+		tmp = ndown;
+		tmp--;
+		ndown = tmp;
 		if
 		:: (ndown == 0 && dup > 0) ->
-			dup--;
+			tmp = dup;
+			tmp--;
+			dup = tmp;
 			V(Sup);
 		:: else ->
 			V(Sentry)
 		fi		
 
 
-	:: !(number<5) ->
+	:: !(number < (N/2)) ->
 		P(Sentry);
-		nup--;
+		tmp = nup;
+		tmp--;
+		nup = tmp;
 		if
 		:: (nup == 0 && ddown > 0) ->
-			ddown--;
+			tmp = ddown;
+			tmp--;
+			ddown = tmp;
 			V(Sdown);
 		:: else ->
 			V(Sentry)
@@ -107,12 +129,12 @@ entry:
 crit:
 	
 	if 
-	:: _pid < 5 -> upcrit++; 
-	:: _pid > 4 -> downcrit++; 
+	:: _pid < (N/2) -> upcrit++; 
+	:: else -> downcrit++; 
 	fi;
 	if 
-	:: _pid < 5 -> upcrit--; 
-	:: _pid > 4 -> downcrit--; 
+	:: _pid < (N/2) -> upcrit--; 
+	:: else -> downcrit--; 
 	fi;
 
 exit:
@@ -124,6 +146,12 @@ exit:
 active proctype allySafety()
 {
 	atomic{(upcrit > 0 && downcrit > 0)} ->
+	assert(false);
+}
+
+active proctype nSafety()
+{
+	atomic{!(nup <= N) && !(ndown <= N)} ->
 	assert(false);
 }
 
